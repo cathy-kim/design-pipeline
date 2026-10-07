@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><title>{{brandName}} ad {{layout}}</title>
+<style>{{{css}}}
+.ad{display:flex;gap:calc(40px*var(--u))}
+.ad.square,.ad.portrait{flex-direction:column;justify-content:flex-end}
+.ad.landscape{flex-direction:row;align-items:center}
+.ad.landscape .copy{flex:1}
+.ad.landscape .product{width:40%}
+.ad.portrait{padding:calc(160px*var(--u)) calc(120px*var(--u)) calc(480px*var(--u))}
+.copy{position:relative;z-index:2;display:flex;flex-direction:column;gap:calc(24px*var(--u))}
+.product{position:relative;z-index:2;max-height:55%;object-fit:contain;align-self:center}
+.top{position:absolute;top:calc(48px*var(--u));left:calc(60px*var(--u));right:calc(60px*var(--u));display:flex;justify-content:space-between;align-items:center;z-index:2}
+</style></head>
+<body>
+<div class="frame ad pad {{layout}}">
+  {{#background}}<img class="full-bleed" src="{{background}}" alt=""><div class="scrim"></div>{{/background}}
+  <div class="top{{#background}} on-image{{/background}}">
+    {{#logo}}<img class="logo" src="{{logo}}" alt="">{{/logo}}{{^logo}}<span class="wordmark">{{brandName}}</span>{{/logo}}
+    {{#promo}}<span class="badge">{{promo}}</span>{{/promo}}
+  </div>
+  {{#product}}<img class="product" src="{{product}}" alt="">{{/product}}
+  <div class="copy{{#background}} on-image{{/background}}">
+    <h1 class="h-xl">{{headline}}</h1>
+    {{#subheadline}}<p class="t-body">{{subheadline}}</p>{{/subheadline}}
+    {{#cta}}<div><span class="btn">{{cta}}</span></div>{{/cta}}
+  </div>
+</div>
+</body></html>

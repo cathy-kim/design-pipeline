@@ -1,0 +1,24 @@
+{
+  "name": "design-qa-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "design-qa: static token audit, Playwright dynamic QA, single pixel diff implementation",
+  "type": "module",
+  "scripts": {
+    "audit": "node token-audit.js",
+    "dynamic": "node qa-runner.js",
+    "pixel-diff": "node pixel-diff.js",
+    "wait": "node wait-for-server.js",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "pixelmatch": "^6.0.0",
+    "playwright": "^1.48.0",
+    "pngjs": "^7.0.0",
+    "sharp": "^0.33.0"
+  },
+  "engines": {
+    "node": ">=18.17.0"
+  }
+}

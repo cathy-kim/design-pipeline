@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><title>{{productName}} — {{brandName}}</title>
+<style>{{{css}}}
+.pdp{width:var(--w)}
+.sec{padding:calc(96px*var(--u)) calc(56px*var(--u));display:flex;flex-direction:column;gap:calc(32px*var(--u))}
+.sec.alt{background:color-mix(in srgb,var(--c-muted) 12%,var(--c-bg))}
+.hero{padding:0}
+.hero .copy{padding:calc(72px*var(--u)) calc(56px*var(--u));display:flex;flex-direction:column;gap:calc(20px*var(--u))}
+.eyebrow{color:var(--c-primary);font-weight:700;font-size:calc(22px*var(--u));letter-spacing:.08em;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:calc(24px*var(--u))}
+.item{display:flex;flex-direction:column;gap:calc(12px*var(--u))}
+.item .media{aspect-ratio:1/1}
+.step{display:flex;gap:calc(24px*var(--u));align-items:flex-start}
+.step .n{flex:none;width:calc(56px*var(--u));height:calc(56px*var(--u));display:flex;align-items:center;justify-content:center;background:var(--c-primary);color:var(--c-bg);border-radius:var(--r-tag);font-weight:800}
+table{width:100%;border-collapse:collapse;font-size:calc(24px*var(--u))}
+td{padding:calc(16px*var(--u)) 0;border-bottom:1px solid var(--c-muted)}
+td:first-child{font-weight:700;width:35%}
+.review{padding:calc(28px*var(--u));border:1px solid var(--c-muted);border-radius:var(--r-card)}
+.rating{color:var(--c-accent);font-weight:800}
+.q{font-weight:700}
+.h-lg{font-size:calc(44px*var(--u))}.h-md{font-size:calc(30px*var(--u))}.t-body{font-size:calc(24px*var(--u))}.t-small{font-size:calc(20px*var(--u))}
+</style></head>
+<body>
+<div class="pdp">
+  <section class="sec hero">
+    {{#heroImage}}<img src="{{heroImage}}" alt="" style="width:100%;display:block">{{/heroImage}}
+    <div class="copy">
+      {{#eyebrow}}<span class="eyebrow">{{eyebrow}}</span>{{/eyebrow}}
+      <h1 class="h-lg">{{productName}}</h1>
+      {{#tagline}}<p class="t-body">{{tagline}}</p>{{/tagline}}
+      {{#price}}<p class="h-md">{{price}}</p>{{/price}}
+    </div>
+  </section>
+  {{#sections}}
+  <section class="sec{{#alt}} alt{{/alt}}">
+    {{#eyebrow}}<span class="eyebrow">{{eyebrow}}</span>{{/eyebrow}}
+    <h2 class="h-lg">{{title}}</h2>
+    {{#body}}<p class="t-body">{{body}}</p>{{/body}}
+    {{#isBenefits}}<div class="grid">{{#items}}<div class="item">{{#image}}<img class="media" src="{{image}}" alt="">{{/image}}<h3 class="h-md">{{title}}</h3><p class="t-body">{{body}}</p></div>{{/items}}</div>{{/isBenefits}}
+    {{#isSteps}}{{#items}}<div class="step"><span class="n">{{n}}</span><div><h3 class="h-md">{{title}}</h3><p class="t-body">{{body}}</p></div></div>{{/items}}{{/isSteps}}
+    {{#isSpecs}}<table>{{#items}}<tr><td>{{title}}</td><td>{{body}}</td></tr>{{/items}}</table>{{/isSpecs}}
+    {{#isReviews}}{{#items}}<div class="review">{{#rating}}<span class="rating">★ {{rating}}</span>{{/rating}}<p class="t-body">{{body}}</p><p class="t-small">{{title}}</p></div>{{/items}}{{/isReviews}}
+    {{#isFaq}}{{#items}}<div class="item"><p class="q t-body">Q. {{title}}</p><p class="t-body">A. {{body}}</p></div>{{/items}}{{/isFaq}}
+    {{#image}}<img class="media" src="{{image}}" alt="">{{/image}}
+  </section>
+  {{/sections}}
+</div>
+</body></html>

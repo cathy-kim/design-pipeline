@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><title>{{brandName}} card {{index}}/{{total}}</title>
+<style>{{{css}}}
+.card{display:flex;flex-direction:column}
+.card.story{padding:calc(160px*var(--u)) calc(120px*var(--u)) calc(480px*var(--u))}
+.card-head{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
+.card-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:calc(28px*var(--u));position:relative;z-index:2}
+.card-foot{display:flex;justify-content:flex-end;position:relative;z-index:2}
+.ghost{position:absolute;bottom:calc(40px*var(--u));right:calc(60px*var(--u));line-height:1;font-family:var(--f-head);font-size:calc(240px*var(--u));font-weight:800;color:var(--c-fg);opacity:.06;z-index:1}
+.big-number{font-family:var(--f-head);font-size:calc(160px*var(--u));font-weight:800;line-height:1;color:var(--c-primary)}
+.num{color:var(--c-primary);font-family:var(--f-head);font-size:calc(52px*var(--u));font-weight:800}
+.cta{align-items:center;text-align:center}
+</style></head>
+<body>
+<div class="frame card pad{{#isStory}} story{{/isStory}}" data-role="{{role}}">
+  {{#isCover}}{{#image}}<img class="full-bleed" src="{{image}}" alt=""><div class="scrim"></div>{{/image}}{{/isCover}}
+  {{#isContent}}<span class="ghost">{{index}}</span>{{/isContent}}
+  <header class="card-head{{#isCover}}{{#image}} on-image{{/image}}{{/isCover}}">
+    {{#logo}}<img class="logo" src="{{logo}}" alt="">{{/logo}}{{^logo}}<span class="wordmark">{{brandName}}</span>{{/logo}}
+    <span class="t-small">{{index}}/{{total}}</span>
+  </header>
+
+  {{#isCover}}
+  <main class="card-body{{#image}} on-image{{/image}}">
+    <div class="rule"></div>
+    <h1 class="h-xl">{{headline}}</h1>
+    {{#body}}<p class="t-body">{{body}}</p>{{/body}}
+  </main>
+  {{/isCover}}
+
+  {{#isContent}}
+  <main class="card-body">
+    <span class="num">{{index}}</span>
+    <h2 class="h-lg">{{headline}}</h2>
+    {{#body}}<p class="t-body">{{body}}</p>{{/body}}
+    {{#image}}<img class="media" style="max-height:calc(420px*var(--u))" src="{{image}}" alt="">{{/image}}
+  </main>
+  {{/isContent}}
+
+  {{#isData}}
+  <main class="card-body">
+    <span class="big-number">{{bigNumber}}</span>
+    <h2 class="h-md">{{headline}}</h2>
+    {{#body}}<p class="t-body">{{body}}</p>{{/body}}
+    {{#source}}<p class="t-small">출처: {{source}}</p>{{/source}}
+  </main>
+  {{/isData}}
+
+  {{#isCta}}
+  <main class="card-body cta">
+    <h2 class="h-lg">{{headline}}</h2>
+    {{#body}}<p class="t-body">{{body}}</p>{{/body}}
+    {{#ctaText}}<span class="btn">{{ctaText}}</span>{{/ctaText}}
+  </main>
+  {{/isCta}}
+
+  <footer class="card-foot{{#isCover}}{{#image}} on-image{{/image}}{{/isCover}}"><span class="t-small">{{handle}}</span></footer>
+</div>
+</body></html>

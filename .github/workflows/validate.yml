@@ -1,0 +1,20 @@
+name: validate-plugin
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Manifest JSON
+        run: |
+          python -m json.tool .claude-plugin/plugin.json >/dev/null
+          python -m json.tool .claude-plugin/marketplace.json >/dev/null
+      - name: Structure, frontmatter, references
+        run: bash scripts/validate.sh
+      - name: No secrets
+        run: |
+          ! grep -rnIE '(AIza[0-9A-Za-z_-]{30,}|sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{30,})' --exclude-dir=node_modules --exclude-dir=.git .

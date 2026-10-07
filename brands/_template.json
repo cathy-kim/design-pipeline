@@ -1,0 +1,320 @@
+{
+  "$schema": "design-pipeline/brand_config@0.1.0",
+  "brand": {
+    "id": "acme",
+    "name": "Acme",
+    "nameKr": "애크미",
+    "description": "Placeholder brand used as the canonical brand_config example.",
+    "mood": [
+      "clear",
+      "confident",
+      "calm"
+    ],
+    "philosophy": "Say one thing per screen, and say it plainly."
+  },
+  "tokens": {
+    "colors": {
+      "primary": {
+        "DEFAULT": "#1F4FD8",
+        "foreground": "#FFFFFF",
+        "50": "#EEF2FD",
+        "100": "#D9E2FA",
+        "500": "#1F4FD8",
+        "600": "#1A43B8",
+        "700": "#153795"
+      },
+      "accent": {
+        "DEFAULT": "#E8590C",
+        "foreground": "#FFFFFF",
+        "100": "#FDE8DC",
+        "600": "#C94C0A"
+      },
+      "neutral": {
+        "0": "#FFFFFF",
+        "50": "#FAFAFA",
+        "100": "#F4F4F5",
+        "200": "#E4E4E7",
+        "300": "#D4D4D8",
+        "500": "#71717A",
+        "700": "#3F3F46",
+        "900": "#18181B",
+        "950": "#09090B"
+      },
+      "semantic": {
+        "success": "#15803D",
+        "warning": "#B45309",
+        "danger": {
+          "DEFAULT": "#B91C1C",
+          "soft": "#FEE2E2"
+        },
+        "info": "primary.600"
+      },
+      "roles": {
+        "background": "neutral.0",
+        "surface": "neutral.50",
+        "elevated": "neutral.100",
+        "text": "neutral.900",
+        "textMuted": "neutral.500",
+        "border": "neutral.200",
+        "borderStrong": "neutral.300",
+        "focus": "primary.500"
+      }
+    },
+    "typography": {
+      "families": {
+        "sans": "Pretendard, system-ui, -apple-system, sans-serif",
+        "display": "Pretendard, system-ui, sans-serif",
+        "mono": "ui-monospace, SFMono-Regular, Menlo, monospace"
+      },
+      "nativeFaces": {
+        "400": "Pretendard-Regular",
+        "500": "Pretendard-Medium",
+        "700": "Pretendard-Bold"
+      },
+      "scale": {
+        "display": {
+          "size": "40px",
+          "lineHeight": "1.15",
+          "weight": 700,
+          "letterSpacing": "-0.02em"
+        },
+        "title-lg": {
+          "size": "28px",
+          "lineHeight": "1.3",
+          "weight": 700,
+          "letterSpacing": "-0.01em"
+        },
+        "title-md": {
+          "size": "20px",
+          "lineHeight": "1.4",
+          "weight": 600
+        },
+        "body-lg": {
+          "size": "17px",
+          "lineHeight": "1.6",
+          "weight": 400
+        },
+        "body-md": {
+          "size": "15px",
+          "lineHeight": "1.6",
+          "weight": 400
+        },
+        "caption": {
+          "size": "13px",
+          "lineHeight": "1.4",
+          "weight": 400
+        },
+        "button-md": {
+          "size": "15px",
+          "lineHeight": "1.2",
+          "weight": 600
+        }
+      },
+      "weights": {
+        "regular": 400,
+        "medium": 500,
+        "semibold": 600,
+        "bold": 700
+      },
+      "lineHeights": {
+        "tight": 1.15,
+        "snug": 1.3,
+        "normal": 1.5,
+        "relaxed": 1.6
+      }
+    },
+    "spacing": {
+      "base": 4,
+      "scale": {
+        "0": 0,
+        "1": 4,
+        "2": 8,
+        "3": 12,
+        "4": 16,
+        "5": 20,
+        "6": 24,
+        "8": 32,
+        "10": 40,
+        "12": 48,
+        "16": 64
+      }
+    },
+    "radius": {
+      "scale": {
+        "none": 0,
+        "sm": 2,
+        "md": 4,
+        "lg": 8,
+        "full": 9999
+      }
+    },
+    "effects": {
+      "shadows": {
+        "none": "none",
+        "sm": "0 1px 2px rgb(0 0 0 / 0.06)",
+        "md": "0 4px 12px rgb(0 0 0 / 0.08)"
+      }
+    },
+    "geometry": {
+      "breakpoints": {
+        "sm": 480,
+        "md": 768,
+        "lg": 1024,
+        "xl": 1280
+      },
+      "maxWidths": {
+        "content": 720,
+        "page": 1200
+      },
+      "touchTarget": 44
+    }
+  },
+  "artStyle": {
+    "artStyleId": "flat-editorial",
+    "artStyleName": "Flat editorial illustration",
+    "negative": [
+      "glassmorphism",
+      "neon glow",
+      "gradient border",
+      "3D clay"
+    ]
+  },
+  "visualSystem": {
+    "logoDirection": "Wordmark only, set in the display family, tracking -0.01em.",
+    "iconStyle": "Outline icons, 1.5px stroke, 20px grid.",
+    "illustration": "Two-tone flat shapes using primary and neutral only."
+  },
+  "motion": {
+    "feel": "quick and quiet",
+    "easingCurves": {
+      "standard": "cubic-bezier(0.2, 0, 0, 1)",
+      "exit": "cubic-bezier(0.4, 0, 1, 1)"
+    },
+    "durations": {
+      "fast": 120,
+      "base": 200,
+      "slow": 320
+    }
+  },
+  "assets": {
+    "logo": {
+      "wordmark": null,
+      "symbol": null
+    },
+    "fonts": {},
+    "references": [],
+    "hero": null,
+    "moodBoard": null,
+    "canvasSizes": {
+      "instagram-feed": "1080x1350",
+      "instagram-story": "1080x1920",
+      "web-hero": "1920x1080",
+      "instagram-square": "1080x1080",
+      "ad-square": "1080x1080",
+      "ad-landscape": "1200x628",
+      "ad-story": "1080x1920",
+      "detail-page": {
+        "width": 860
+      },
+      "moodboard": "1920x1080",
+      "logo-square": "1024x1024"
+    },
+    "imagePromptConfiguration": {
+      "style": "flat editorial, generous negative space",
+      "avoid": [
+        "text in image",
+        "neon",
+        "glass"
+      ]
+    }
+  },
+  "components": {
+    "button": {
+      "radius": "md",
+      "variants": {
+        "primary": {
+          "bg": "primary",
+          "fg": "primary.foreground",
+          "hoverBg": "primary.600",
+          "border": null
+        },
+        "secondary": {
+          "bg": "background",
+          "fg": "text",
+          "hoverBg": "surface",
+          "border": "border"
+        },
+        "ghost": {
+          "bg": null,
+          "fg": "text",
+          "hoverBg": "surface",
+          "border": null
+        }
+      },
+      "sizes": {
+        "sm": {
+          "height": 36,
+          "paddingX": "3",
+          "text": "caption"
+        },
+        "md": {
+          "height": 44,
+          "paddingX": "4",
+          "text": "button-md",
+          "weight": "semibold"
+        },
+        "lg": {
+          "height": 52,
+          "paddingX": "5",
+          "text": "button-md"
+        }
+      },
+      "states": {
+        "disabledOpacity": 0.4,
+        "focusRing": "focus"
+      }
+    },
+    "input": {
+      "radius": "md",
+      "height": 44,
+      "paddingX": "3",
+      "text": "body-md",
+      "bg": "background",
+      "fg": "text",
+      "placeholder": "textMuted",
+      "border": "border",
+      "borderFocus": "focus",
+      "borderError": "danger"
+    },
+    "card": {
+      "radius": "lg",
+      "padding": "5",
+      "bg": "surface",
+      "border": "border",
+      "shadow": "none"
+    },
+    "nav": {
+      "height": 56,
+      "paddingX": "4",
+      "bg": "background",
+      "fg": "textMuted",
+      "activeFg": "text",
+      "indicator": "primary",
+      "border": "border",
+      "text": "body-md"
+    }
+  },
+  "build": {
+    "componentFramework": "react",
+    "tailwindConfigFormat": "ts"
+  },
+  "exceptions": [],
+  "platforms": [
+    "web"
+  ],
+  "brandKeywords": [
+    "clarity",
+    "trust",
+    "plain language"
+  ]
+}

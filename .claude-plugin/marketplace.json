@@ -1,0 +1,18 @@
+{
+  "name": "design-pipeline",
+  "owner": { "name": "cathy-kim", "url": "https://github.com/cathy-kim" },
+  "metadata": { "description": "brand_config 기반 7단계 UI/UX 디자인 파이프라인 plugin marketplace (private)" },
+  "plugins": [
+    {
+      "name": "design-pipeline",
+      "source": "./",
+      "description": "브랜드 설정 하나로 디자인 시스템 → UI/UX → 에셋 → QA. 입구는 /design.",
+      "version": "0.2.0",
+      "author": { "name": "cathy-kim", "url": "https://github.com/cathy-kim" },
+      "homepage": "https://github.com/cathy-kim/design-pipeline",
+      "repository": "https://github.com/cathy-kim/design-pipeline",
+      "license": "UNLICENSED",
+      "keywords": ["claude-code", "design", "ui-ux", "design-system", "brand"]
+    }
+  ]
+}

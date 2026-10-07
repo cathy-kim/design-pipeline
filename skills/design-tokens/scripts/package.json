@@ -1,0 +1,20 @@
+{
+  "name": "design-tokens-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "design-tokens stage: URL/image/guide token extraction to CONTRACT §5 brand_config draft",
+  "type": "module",
+  "scripts": {
+    "extract": "tsx extract-all.ts",
+    "map": "tsx to-brand-config.ts",
+    "promote": "tsx promote.ts"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  }
+}

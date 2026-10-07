@@ -1,0 +1,35 @@
+{
+  "name": "design-recreate-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "design-recreate: capture, grid sectioning, layout grid detection, 3-Signal depth analysis/plan, render and self-correction step",
+  "type": "commonjs",
+  "scripts": {
+    "capture": "node multi-viewport-capture.js",
+    "cap": "node cap-page.js",
+    "grid": "node detect-layout-grid.js",
+    "section": "node grid-section-image.js",
+    "overlay": "node grid-overlay.js",
+    "inspect": "node inspect-element.js",
+    "network": "node capture-network.js",
+    "perf": "node analyze-performance.js",
+    "analyze": "tsx auto-analyze.ts",
+    "plan": "tsx auto-plan.ts",
+    "render": "tsx render-screenshot.ts",
+    "typecheck": "tsc --noEmit --strict false --esModuleInterop --skipLibCheck --module commonjs --target es2020 auto-analyze.ts auto-plan.ts gemini-analyze.ts render-screenshot.ts"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "playwright": "^1.40.0",
+    "puppeteer": "^22.0.0",
+    "sharp": "^0.33.0",
+    "tsx": "^4.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

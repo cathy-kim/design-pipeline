@@ -1,0 +1,80 @@
+You are a design analysis expert. Analyze this image and return a structured JSON response.
+
+## Task
+
+Examine the provided design image and identify:
+1. Grid System
+2. Layer Structure (bottom to top)
+3. Every visual element with classification and bounding box
+
+## Element Classification
+
+Classify each element into exactly ONE of these categories:
+- TEMPLATE: Structural layout elements (containers, cards, sections)
+- RAW_IMAGE: Photographs, illustrations, product images
+- PROCEDURAL: Algorithmically reproducible patterns (halftone dots, starburst/sunburst rays, glitch blocks, geometric repeating shapes)
+- COMPONENT: UI components (badges, buttons, dividers, icons)
+- TEXTURE: Visual effects (noise, grain, gradients, shadows, glassmorphism)
+- TEXT: Any text content (headings, body, captions, labels)
+
+## Bounding Box Format
+
+For each element, provide normalized coordinates (0-1000 scale):
+- x_min, y_min: top-left corner
+- x_max, y_max: bottom-right corner
+
+## Required JSON Output
+
+```json
+{
+  "grid": {
+    "type": "regular|modular|baseline|golden_ratio|bento|asymmetric|freeform",
+    "columns": [],
+    "rows": [],
+    "gutter": 0,
+    "margin": 0
+  },
+  "layers": [
+    {
+      "z": 0,
+      "type": "background|image_layer|structure|component|effect|text",
+      "description": "Brief description"
+    }
+  ],
+  "elements": [
+    {
+      "id": "descriptive-kebab-case-id",
+      "classification": "TEMPLATE|RAW_IMAGE|PROCEDURAL|COMPONENT|TEXTURE|TEXT",
+      "description": "What this element looks like",
+      "bounds": {
+        "x_min": 0, "y_min": 0, "x_max": 1000, "y_max": 1000
+      },
+      "text_content": "Exact text if TEXT element, null otherwise",
+      "font_analysis": {
+        "serif": true,
+        "weight": "normal|bold|black",
+        "estimated_size": "48px",
+        "style": "normal|italic"
+      },
+      "procedural_type": "halftone|starburst|glitch|geometric|null",
+      "semantic_role": "background|hero|headline|sub-copy|body|cta|price|discount|spec|pill|logo|badge|decoration",
+      "overlaps_above": ["ids of elements this element visually sits ON TOP of"],
+      "font_size_px": 48,
+      "font_weight": 700,
+      "color_contrast": 0.8
+    }
+  ]
+}
+```
+
+## Rules
+
+1. List ALL visible elements - do not skip small or subtle ones
+2. Bounding boxes must be tight around each element
+3. For TEXT elements, transcribe the EXACT text content
+4. For PROCEDURAL elements, identify the specific pattern type
+5. Layer z-order: 0 = bottommost (background), higher = on top
+6. overlaps_above: only list elements whose bounding boxes intersect this one AND that this element covers
+7. font_size_px / font_weight: TEXT elements only (estimated px and 100-900); omit otherwise
+8. color_contrast: 0-1 luminance difference against the surface directly behind the element
+9. Return ONLY valid JSON, no markdown wrapping

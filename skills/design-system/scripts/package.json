@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "type": "module",
+  "description": "design-system generator and guard templates. Generator uses only the Node standard library; guards need vitest in the target project.",
+  "engines": { "node": ">=22.18" }
+}

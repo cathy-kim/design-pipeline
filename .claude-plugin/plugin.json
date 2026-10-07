@@ -1,0 +1,28 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "design-pipeline",
+  "version": "0.2.0",
+  "description": "브랜드 설정(brand_config) 하나로 디자인 시스템 → UI/UX → 에셋 → QA 까지 가는 7단계 UI/UX 디자인 파이프라인. 입구는 /design 라우터 하나.",
+  "author": { "name": "cathy-kim", "url": "https://github.com/cathy-kim" },
+  "homepage": "https://github.com/cathy-kim/design-pipeline",
+  "repository": "https://github.com/cathy-kim/design-pipeline",
+  "license": "UNLICENSED",
+  "keywords": ["claude-code", "design", "ui-ux", "design-system", "design-tokens", "brand", "qa"],
+  "skills": [
+    "./skills/design/",
+    "./skills/design-brief/",
+    "./skills/design-tokens/",
+    "./skills/design-system/",
+    "./skills/design-ui/",
+    "./skills/design-recreate/",
+    "./skills/design-assets/",
+    "./skills/design-qa/"
+  ],
+  "agents": [
+    "./agents/design-token-extractor.md",
+    "./agents/design-reconstructor.md",
+    "./agents/visual-comparator.md",
+    "./agents/e2e-tester.md",
+    "./agents/layout-designer.md"
+  ]
+}

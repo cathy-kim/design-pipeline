@@ -1,0 +1,12 @@
+{
+  "name": "design-ui-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate:gemini": "tsx validate-with-gemini.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0"
+  }
+}
