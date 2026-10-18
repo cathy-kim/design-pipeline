@@ -1,4 +1,4 @@
-// node --test skills/design-stitch/scripts/test/
+// node --test skills/design-stitch/scripts/test/contract.test.mjs
 // STATIC contract tests: 문서·매니페스트·게이트 스크립트만 검사한다. Stitch 를 호출하지 않으며 live E2E 가 아니다.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

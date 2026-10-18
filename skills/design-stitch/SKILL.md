@@ -94,7 +94,7 @@ Stitch 링크·이미지·근거를 보이고 상태를 기록한다: `pending` 
 |---|---|
 | `node ${CLAUDE_PLUGIN_ROOT}/skills/design-stitch/scripts/check-stitch.mjs <session.json> --gate <audit\|handoff\|implement>` | 게이트 판정. exit 0 통과 · 1 미달(이유 출력) · 2 입력 오류. `implement` 는 handoff 조건 + `handoff.md` 존재 |
 | `node ${CLAUDE_PLUGIN_ROOT}/skills/design-stitch/scripts/schema-drift.mjs <tools.json>` | 실제 `--list-tools` 출력과 `references/stitch-tools.snapshot.json` 비교(이름·readOnly·required). 0 일치 · 1 차이 |
-| `node --test ${CLAUDE_PLUGIN_ROOT}/skills/design-stitch/scripts/test/` | **정적** 계약 테스트. 실제 Stitch 호출 없음 |
+| `node --test ${CLAUDE_PLUGIN_ROOT}/skills/design-stitch/scripts/test/contract.test.mjs` | **정적** 계약 테스트. 실제 Stitch 호출 없음 |
 
 ## ⑥ 완료 조건
 

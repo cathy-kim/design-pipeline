@@ -142,7 +142,7 @@ bash scripts/validate.sh
 - SKILL.md 안의 `references/` · `scripts/` 상대경로와 `${CLAUDE_PLUGIN_ROOT}/...` 경로가 실제로 존재한다.
 - `brands/*.json` 이 유효한 JSON 이다.
 
-마지막 줄이 `validate: PASS` 여야 한다. design-stitch 의 정적 계약 테스트는 `node --test skills/design-stitch/scripts/test/` 다(실제 Stitch 호출 없음).
+마지막 줄이 `validate: PASS` 여야 한다. design-stitch 의 정적 계약 테스트는 `node --test skills/design-stitch/scripts/test/contract.test.mjs` 다(실제 Stitch 호출 없음).
 
 ## 디자인 규칙
 
