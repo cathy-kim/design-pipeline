@@ -1,7 +1,7 @@
 # design-pipeline — 단계 계약 (CONTRACT)
 
 > 이 문서가 정본이다. 각 스킬 SKILL.md 는 이 계약을 어기지 않는다. 어긋나면 이 문서가 이긴다.
-> Version 0.1.1 · 2026-10-07 (§3 중간 경로·§3-1 공용 CLI·§5 확장 키·radius 규칙 확정)
+> Version 0.3.0 · 2026-10-18 (design-stitch 단계 추가, 화면 UI/UX 는 Stitch 승인 뒤에만 구현) · 0.1.1 · 2026-10-07 (§3 중간 경로·§3-1 공용 CLI·§5 확장 키·radius 규칙 확정)
 
 ## 1. 원칙
 
@@ -11,6 +11,7 @@
 4. **단계 간 전달은 파일로.** 작업 프로젝트의 `.design/` 디렉터리가 핸드오프 버스다(§3). 대화 메모리에 의존하지 않는다.
 5. **비밀값은 환경변수로만.** `GEMINI_API_KEY`, `GOOGLE_AI_API_KEY` 등은 `process.env` 에서 읽는다. `.env` 파일은 리포에 넣지 않는다.
 6. **디자인 규칙(워크스페이스 공통).** 한 화면 3색(Primary + Accent + Neutral). radius 는 브랜드 토큰의 닫힌 스케일만. pill 버튼·네온 글로우·글래스모피즘·그라디언트 보더 금지. 계위는 크기/무게 → 간격 → 명도 순, 색은 최후 수단. 네 가지 금지는 `design-qa` 가 기계적으로 잡는다. 브랜드가 근거와 함께 `exceptions[]` 에 등록한 항목만 WAIVED 로 통과시키며, 리포트에는 항상 남긴다.
+7. **화면은 Stitch 승인 뒤에 코드가 된다.** 화면 UI/UX 는 `design-stitch` 가 Stitch 에서 설계하고 revision 단위 명시적 승인을 받는다. 승인 전에는 제품 코드를 바꾸지 않고, 승인 뒤에도 사용자가 따로 구현을 요청해야 `design-ui` 가 만든다. 디자인 승인에서 구현 지시나 공개·발행 승인을 추론하지 않는다.
 
 ## 2. 단계와 소유권
 
@@ -20,7 +21,8 @@
 | 1 | `design-brief` | 브리프 | 요청, 참조 URL/이미지, 기존 `brand_config` 유무 | `brief.md` | 요구사항 질문 흐름, 팔레트·타이포 "결정"(브랜드 없을 때만), 화면 목록·우선순위 |
 | 2 | `design-tokens` | 토큰 추출 | URL, 이미지, 브랜드 가이드 PDF/AI | `brand_config.draft.json` + `tokens-report.md` | Playwright computed-style 추출, 이미지 토큰 추출, 가이드 문서 파싱 |
 | 3 | `design-system` | 디자인 시스템 | `brand_config.json` (**필수**) | `system/` (tailwind.config · css vars · NativeWind theme · 컴포넌트 프리미티브 · 가드 테스트) | 토큰 → 코드 변환, 컴포넌트 프리미티브, 테마 프리셋, radius/색 가드 테스트 |
-| 4 | `design-ui` | UI 생성 | `brief.md` + `system/` | 화면/컴포넌트 코드 (프로젝트 경로) | UI 코드 생성 4모드: `component` · `page` · `landing-next`(Next.js + Magic UI) · `artifact`(단일 HTML 번들, React+shadcn) |
+| 3a | `design-stitch` | Stitch UI/UX | 대상 앱·`brand_config`(있으면)·Stitch project | `stitch/` (session.json · ux-frame.md · r<rev>/*.png · report.md · handoff.md) | Stitch MCP 호출, 모드 audit·propose·refine·handoff, revision 승인 게이트(`check-stitch.mjs`) |
+| 4 | `design-ui` | UI 생성 | `brief.md` + `system/` (+ 화면이면 승인된 `stitch/handoff.md`) | 화면/컴포넌트 코드 (프로젝트 경로) | UI 코드 생성 4모드: `component` · `page` · `landing-next`(Next.js + Magic UI) · `artifact`(단일 HTML 번들, React+shadcn) |
 | 5 | `design-recreate` | 재현 | 참조 URL/이미지 + (`system/` 있으면) | 재현 코드 + `recreate-report.md` | 그리드 섹셔닝, 3-Signal Depth Layer 분해, Layer-by-Layer 빌드, 재귀 자기 수정 |
 | 6 | `design-assets` | 에셋 | `brand_config.json` + 문구/내용 | `assets/` (PNG/SVG/HTML/모션 코드) | Gemini 이미지 생성(단일 구현), 카드뉴스·광고·상세페이지 템플릿 조합, 로고 프롬프트, 모션(Framer Motion/CSS) |
 | 7 | `design-qa` | QA | 위 산출물 + 실행 중 URL | `qa/report.md` + 스크린샷 | 정적 토큰 감사(3색·radius·금지 효과), Playwright 상태/반응형/접근성, 픽셀 diff(단일 구현: sharp + pixelmatch, ImageMagick 불필요), 15항목 체크리스트 |
@@ -50,6 +52,7 @@
   tokens-report.md         # 2. 추출 근거(어디서 무슨 값을, 신뢰도)
   tokens-evidence/         # 2. raw.json, confidence.json, 추출 당시 스크린샷 (근거 보관)
   system/                  # 3. tailwind.config.{js|ts} | tokens.css | tokens.shadcn.css | nativewind.theme.js(mobile-rn 일 때) | primitives/{web,native}/ | guards/*.test.ts
+  stitch/                  # 3a. session.json(ID·revision·쓰기·승인) · ux-frame.md · r<rev>/<screen>.png · report.md · handoff.md
   recreate/                # 5. 작업 디렉터리: grid.json, cells/, elements.json, build/, progress/iteration-log.json, progress/fix-<N>.md
   recreate-report.md       # 5. 섹션별 일치율, 남은 diff, 금지 효과 대체 기록
   assets/                  # 6. 생성물. manifest.json 에 프롬프트·모델·시드·목표/실제 크기 기록
@@ -77,15 +80,19 @@ stdout 한 줄 JSON: {"pass": bool, "pixelScore": 0-100, "mismatchedPixels": int
 
 | 요청 유형 | 조건 | 순서 |
 |---|---|---|
-| **From Scratch** | 브랜드 있음 | brief → system → ui → qa |
-| **From Scratch** | 브랜드 없음, 참조 없음 | brief(팔레트 결정 포함) → system(brief 결정을 brand_config 로 승격) → ui → qa |
-| **Inspired** | 참조 URL/이미지 "스타일 참고" | tokens → (brief) → system → ui → qa |
+| **From Scratch** | 브랜드 있음 | brief → system → stitch(propose) → **승인 대기에서 멈춤** |
+| **From Scratch** | 브랜드 없음, 참조 없음 | brief(팔레트 결정 포함) → system(brief 결정을 brand_config 로 승격) → stitch(propose) → **멈춤** |
+| **Inspired** | 참조 URL/이미지 "스타일 참고" | tokens → (brief) → system → stitch(propose) → **멈춤** |
 | **Recreation** | "똑같이" | tokens → recreate → qa |
-| **Modification** | 기존 코드 수정 | (system 있으면 읽기) → ui(수정 모드) → qa |
+| **Modification** | 기존 코드 수정(화면 구조·IA·레이아웃 변경) | stitch(audit → propose) → **멈춤** |
+| **Modification** | 기존 코드 수정(문구·버그·토큰 값만) | (system 있으면 읽기) → ui(수정 모드) → qa |
+| **Implementation** | 승인된 Stitch revision + 사용자의 별도 구현 요청 | check-stitch implement → ui → qa |
 | **Extraction** | "토큰 뽑아줘" | tokens 만 |
 | **Deconstruct / SNS Template** | 이미지 분해·재구성, SNS 포스트 재현 | tokens → recreate → (assets) → qa |
 | **Assets only** | 카드뉴스·광고·로고·모션 | assets → qa(정적 감사만) |
 | **Design system only** | "디자인 시스템 만들어줘" | (tokens) → system → qa(가드 테스트) |
+
+**조기 모드 분기가 이 표보다 먼저다.** 요청에 `audit` · `refine` · `handoff` · `implement` 모드가 있거나 Stitch 화면을 지목하면 라우터는 표의 순서를 적용하지 않고 그 모드만 부른다. `handoff` 는 어떤 생성 단계도 거치지 않는다.
 
 라우터는 **설계를 직접 하지 않는다.** 분류하고, 각 단계를 `Skill` 로 호출하고, 단계 사이에 `.design/` 산출물이 생겼는지 확인한다. `brand_config.json` 이 없는데 3단계 이후로 가야 하면 2단계나 1단계로 되돌린다.
 
