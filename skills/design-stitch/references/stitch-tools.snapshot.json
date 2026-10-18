@@ -1,0 +1,20 @@
+{
+ "source": "stitch-mcp --list-tools, 2026-10-18 (upstream 15 tools). Static snapshot; refresh with scripts/schema-drift.mjs",
+ "tools": [
+  {"name": "apply_design_system", "readOnly": false, "required": ["assetId", "projectId", "selectedScreenInstances"]},
+  {"name": "create_design_system", "readOnly": false, "required": ["designSystem"]},
+  {"name": "create_design_system_from_design_md", "readOnly": false, "required": ["projectId", "selectedScreenInstance"]},
+  {"name": "create_project", "readOnly": false, "required": []},
+  {"name": "delete_project", "readOnly": false, "required": ["name"]},
+  {"name": "edit_screens", "readOnly": false, "required": ["projectId", "prompt", "selectedScreenIds"]},
+  {"name": "generate_screen_from_text", "readOnly": false, "required": ["projectId", "prompt"]},
+  {"name": "generate_variants", "readOnly": false, "required": ["projectId", "prompt", "selectedScreenIds", "variantOptions"]},
+  {"name": "get_project", "readOnly": true, "required": ["name"]},
+  {"name": "get_screen", "readOnly": true, "required": ["name"]},
+  {"name": "list_design_systems", "readOnly": true, "required": []},
+  {"name": "list_projects", "readOnly": true, "required": []},
+  {"name": "list_screens", "readOnly": true, "required": ["projectId"]},
+  {"name": "update_design_system", "readOnly": false, "required": ["designSystem", "name", "projectId"]},
+  {"name": "upload_design_md", "readOnly": false, "required": ["designMdBase64", "projectId"]}
+ ]
+}

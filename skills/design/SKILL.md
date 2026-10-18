@@ -1,6 +1,6 @@
 ---
 name: design
-description: UI/UX 디자인 파이프라인 라우터. 자연어 디자인 요청을 9개 유형(From Scratch 브랜드 유/무, Inspired, Recreation, Modification, Extraction, Deconstruct/SNS Template, Assets only, Design system only)으로 분류하고, design-brief · design-tokens · design-system · design-ui · design-recreate · design-assets · design-qa 를 정해진 순서로 호출하며, 단계 사이마다 `.design/` 핸드오프 산출물을 확인한다. 설계는 직접 하지 않는다. Use when - 디자인, 디자인 만들어줘, UI 만들어줘, 이거 똑같이, 스타일 참고해서, 디자인 수정, 토큰 추출, 이미지 분해, SNS 템플릿, 카드뉴스, 디자인 시스템, design, ui, ux, landing, dashboard, component, recreate, extract tokens. NOT for - 웹소설 설계(novel-design), 브랜드 아이덴티티 기획(brand-system)
+description: UI/UX 디자인 파이프라인 라우터. 화면 UI/UX 요청은 먼저 Stitch 단계(design-stitch — audit · propose · refine · handoff, 승인 전 구현 없음)로 보내고, 그 밖의 요청은 9개 유형(From Scratch 브랜드 유/무, Inspired, Recreation, Modification, Extraction, Deconstruct/SNS Template, Assets only, Design system only)으로 분류해 design-brief · design-tokens · design-system · design-stitch · design-ui · design-recreate · design-assets · design-qa 를 정해진 순서로 호출하며, 단계 사이마다 `.design/` 핸드오프 산출물을 확인한다. 설계는 직접 하지 않는다. Use when - 디자인, 디자인 만들어줘, UI 만들어줘, 이거 똑같이, 스타일 참고해서, 디자인 수정, 토큰 추출, 이미지 분해, SNS 템플릿, 카드뉴스, 디자인 시스템, design, ui, ux, landing, dashboard, component, recreate, extract tokens, Stitch, UX 감사, 리디자인, 시안, 화면 설계. NOT for - 웹소설 설계(novel-design), 브랜드 아이덴티티 기획(brand-system)
 ---
 
 # design — 파이프라인 라우터
@@ -10,6 +10,7 @@ description: UI/UX 디자인 파이프라인 라우터. 자연어 디자인 요�
 요청을 **분류**하고, 단계 **순서**를 정하고, 각 단계를 `Skill` 로 **호출**하고, 단계 사이 **핸드오프를 검증**한다.
 라우터는 팔레트를 고르지 않고, 토큰을 뽑지 않고, 코드를 쓰지 않는다. 그 일은 전부 단계 스킬의 몫이다(계약 §2).
 "브리프 → UI" 처럼 디자인 시스템을 건너뛰는 경로는 만들지 않는다(계약 §1-1).
+화면 UI/UX 는 Stitch 시안이 revision 단위로 승인된 뒤에만 코드가 된다. 승인 뒤 구현도 사용자의 **별도** 구현 요청이 있어야 한다(계약 §1-7).
 
 ## ② 입력 감지
 
@@ -36,20 +37,41 @@ Deconstruct 판별: 이미지가 상세페이지·광고 배너처럼 배경 + �
    `_template.json` 은 브랜드가 아니다. 일치 후보를 고를 때 제외한다. 이름이 없으면 그 폴더의 `*.json` 목록을 보여 주고 묻는다(⑤).
 3. 그 외 → **브랜드 없음**.
 
+## ②-1 조기 모드 분기 (③ 결정표보다 먼저, 결정표를 덮어쓴다)
+
+아래 중 하나라도 맞으면 ③의 순서를 적용하지 않고 이 표대로만 부른다. 특히 `handoff` 는 어떤 생성 단계도 거치지 않는다.
+
+| 신호 | 호출 |
+|---|---|
+| `audit` 또는 "지금 화면 어때/UX 감사/리뷰" | `design-stitch` `mode=audit` 만 (쓰기 0건) |
+| `refine` 또는 Stitch 화면·스크린샷을 지목한 수정 | `design-stitch` `mode=refine` 만 |
+| `handoff` 또는 "승인한 시안 넘겨줘" | `design-stitch` `mode=handoff` 만 — brief·system·generate·ui 호출 금지 |
+| `implement` 또는 "승인된 디자인 구현해줘" (사용자 명시) | `check-stitch.mjs --gate implement` exit 0 → `design-ui` → `design-qa`. 실패면 멈추고 이유 보고 |
+| `propose`, Stitch project id/URL, 리디자인·시안·화면 설계 | `design-stitch` `mode=propose` (brand_config 가 있으면 함께 넘김) |
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/skills/design-stitch/scripts/check-stitch.mjs" .design/stitch/session.json --gate implement
+```
+
+이미지 재현·SNS·상세페이지 분해·카드뉴스·토큰 추출은 여기 해당하지 않는다 — ③으로 간다.
+
 ## ③ 결정표 (계약 §4 원문)
 
 | 요청 유형 | 조건 | 순서 |
 |---|---|---|
-| **From Scratch** | 브랜드 있음 | brief → system → ui → qa |
-| **From Scratch** | 브랜드 없음, 참조 없음 | brief(팔레트 결정 포함) → system(brief 결정을 brand_config 로 승격) → ui → qa |
-| **Inspired** | 참조 URL/이미지 "스타일 참고" | tokens → (brief) → system → ui → qa |
+| **From Scratch** | 브랜드 있음 | brief → system → stitch(propose) → **승인 대기에서 멈춤** |
+| **From Scratch** | 브랜드 없음, 참조 없음 | brief(팔레트 결정 포함) → system(brief 결정을 brand_config 로 승격) → stitch(propose) → **멈춤** |
+| **Inspired** | 참조 URL/이미지 "스타일 참고" | tokens → (brief) → system → stitch(propose) → **멈춤** |
 | **Recreation** | "똑같이" | tokens → recreate → qa |
-| **Modification** | 기존 코드 수정 | (system 있으면 읽기) → ui(수정 모드) → qa |
+| **Modification** | 기존 코드 수정(화면 구조·IA·레이아웃 변경) | stitch(audit → propose) → **멈춤** |
+| **Modification** | 기존 코드 수정(문구·버그·토큰 값만) | (system 있으면 읽기) → ui(수정 모드) → qa |
+| **Implementation** | 승인된 Stitch revision + 사용자의 별도 구현 요청 | check-stitch implement → ui → qa |
 | **Extraction** | "토큰 뽑아줘" | tokens 만 |
 | **Deconstruct / SNS Template** | 이미지 분해·재구성, SNS 포스트 재현 | tokens → recreate → (assets) → qa |
 | **Assets only** | 카드뉴스·광고·로고·모션 | assets → qa(정적 감사만) |
 | **Design system only** | "디자인 시스템 만들어줘" | (tokens) → system → qa(가드 테스트) |
 
+**멈춤** 은 실행의 끝이다. design-ui 는 사용자가 따로 구현을 요청할 때 Implementation 행으로만 부른다. 컴포넌트 하나·artifact 처럼 사용자가 "Stitch 없이" 를 명시하면 `stitch=off` 로 ui 를 부르고 보고에 남긴다.
 괄호 단계는 조건부다. Inspired 의 (brief) 는 화면 목록이 요청에 없을 때, Deconstruct 의 (assets) 는 생성 이미지(아바타·배경·제품컷)가 필요할 때, Design system only 의 (tokens) 는 참조 URL/이미지/가이드가 있을 때 넣는다.
 
 ### 행별 호출 시퀀스
@@ -60,16 +82,16 @@ Deconstruct 판별: 이미지가 상세페이지·광고 배너처럼 배경 + �
 ```
 Skill(skill="design-pipeline:design-brief",  args="<요청> | brand=present")
 Skill(skill="design-pipeline:design-system", args="brand_config=.design/brand_config.json")
-Skill(skill="design-pipeline:design-ui",     args="mode=<component|page|landing-next|artifact> | <요청>")
-Skill(skill="design-pipeline:design-qa",     args="target=<실행 URL 또는 산출 경로>")
+Skill(skill="design-pipeline:design-stitch", args="mode=propose | <요청> | brand_config=.design/brand_config.json")
+# 멈춤 — 승인과 구현 요청은 사용자 몫
 ```
 
 **From Scratch · 브랜드 없음, 참조 없음**
 ```
 Skill(skill="design-pipeline:design-brief",  args="<요청> | brand=none | decide=palette,typography")
 Skill(skill="design-pipeline:design-system", args="promote=.design/brief.md")   # brief 결정 → .design/brand_config.json
-Skill(skill="design-pipeline:design-ui",     args="mode=<...> | <요청>")
-Skill(skill="design-pipeline:design-qa",     args="target=<...>")
+Skill(skill="design-pipeline:design-stitch", args="mode=propose | <요청> | brand_config=.design/brand_config.json")
+# 멈춤 — 승인과 구현 요청은 사용자 몫
 ```
 
 **Inspired**
@@ -78,8 +100,8 @@ Skill(skill="design-pipeline:design-tokens", args="source=<ref.url|ref.image|ref
 # draft 승격: brand_config.json 이 없으면 brand_config.draft.json 을 사용자에게 요약해 보이고 승인 시 복사
 Skill(skill="design-pipeline:design-brief",  args="<요청> | brand=present")   # 화면 목록이 없을 때만
 Skill(skill="design-pipeline:design-system", args="brand_config=.design/brand_config.json")
-Skill(skill="design-pipeline:design-ui",     args="mode=<...> | <요청>")
-Skill(skill="design-pipeline:design-qa",     args="target=<...>")
+Skill(skill="design-pipeline:design-stitch", args="mode=propose | <요청> | brand_config=.design/brand_config.json")
+# 멈춤 — 승인과 구현 요청은 사용자 몫
 ```
 
 **Recreation**
@@ -89,7 +111,20 @@ Skill(skill="design-pipeline:design-recreate", args="ref=<ref.url|ref.image> | m
 Skill(skill="design-pipeline:design-qa",       args="target=<재현 결과> | diff-against=<ref>")
 ```
 
-**Modification**
+**Modification · 화면 구조 변경**
+```
+Skill(skill="design-pipeline:design-stitch", args="mode=audit | target=<target.code>")
+Skill(skill="design-pipeline:design-stitch", args="mode=propose | <수정 요청>")   # 멈춤
+```
+
+**Implementation (승인 + 별도 구현 요청)**
+```
+node "${CLAUDE_PLUGIN_ROOT}/skills/design-stitch/scripts/check-stitch.mjs" .design/stitch/session.json --gate implement
+Skill(skill="design-pipeline:design-ui", args="mode=<page|landing-next|artifact|modify> | handoff=.design/stitch/handoff.md")
+Skill(skill="design-pipeline:design-qa", args="target=<만든 파일 | 실행 URL> | diff-against=.design/stitch/r<rev>/")
+```
+
+**Modification · 문구/버그/토큰 값만**
 ```
 # .design/system/ 가 있으면 그 경로를 args 로 넘긴다(읽기 전용). 없으면 생략.
 Skill(skill="design-pipeline:design-ui", args="mode=modify | target=<target.code> | system=.design/system | <수정 요청>")
@@ -124,7 +159,7 @@ Skill(skill="design-pipeline:design-qa",     args="target=.design/system | guard
 
 ### brand_config 게이트
 
-system · ui · recreate(시스템 사용 시) · assets 를 부르기 전에 `.design/brand_config.json` 이 있어야 한다(계약 §4 마지막 문단).
+system · ui · recreate(시스템 사용 시) · assets 를 부르기 전에(stitch 는 brand_config 가 없으면 대상 앱 토큰을 쓴다) `.design/brand_config.json` 이 있어야 한다(계약 §4 마지막 문단).
 - 없고 `brand_config.draft.json` 이 있다 → draft 요약(색·폰트·radius 스케일)을 보여 주고 승인받아 승격한다.
 - 둘 다 없고 참조가 있다 → design-tokens 로 되돌린다.
 - 둘 다 없고 참조도 없다 → design-brief(팔레트 결정 포함)로 되돌린다.
@@ -138,6 +173,7 @@ system · ui · recreate(시스템 사용 시) · assets 를 부르기 전에 `.
 | design-brief | `brief.md` |
 | design-tokens | `brand_config.draft.json` 과 `tokens-report.md` |
 | design-system | `brand_config.json`, `system/` 아래 파일 1개 이상 |
+| design-stitch | `stitch/session.json` (audit: + `ux-frame.md`·`report.md`, handoff: + `handoff.md`) |
 | design-ui | 단계가 보고한 화면/컴포넌트 파일 경로 전부 |
 | design-recreate | `recreate-report.md` |
 | design-assets | `.design/assets` 디렉터리 안의 `manifest.json` 과 생성물 1개 이상 |
@@ -172,7 +208,8 @@ next: <같은 단계 재호출에 필요한 입력 또는 원인>
 
 ## ⑥ 완료 조건
 
-- 실행은 design-qa 가 `.design/qa/report.md` 를 쓰고 ④ 검사를 통과해야 끝난다.
+- **멈춤** 행(From Scratch·Inspired·화면 구조 Modification)은 design-stitch 가 `session.json`·`report.md` 와 승인 상태를 남기면 끝난다. 승인 상태는 보고만 하고 다음 단계를 부르지 않는다.
+- 그 밖의 실행은 design-qa 가 `.design/qa/report.md` 를 쓰고 ④ 검사를 통과해야 끝난다.
 - 예외: **Extraction** 은 `brand_config.draft.json` + `tokens-report.md` 확인으로 끝난다. **Design system only** 는 design-qa 가 가드 테스트 결과를 담은 `qa/report.md` 를 쓰면 끝나고, 참조도 QA 대상도 없어 qa 를 생략한 경우 `system/` 의 가드 테스트 파일 존재로 끝난다.
 - report.md 에 FAIL 항목이 있으면 "완료" 라고 보고하지 않는다. FAIL 항목과 그 항목의 소유 단계(예: radius 위반 → design-system 또는 design-ui)를 적고, 그 단계를 재호출할지 사용자에게 알린다.
 - 최종 보고: 유형, 실행한 단계 순서, 각 단계 산출물 경로, QA PASS/FAIL 개수.
@@ -180,8 +217,11 @@ next: <같은 단계 재호출에 필요한 입력 또는 원인>
 ## ⑦ Quick start
 
 ```
-/design acme 브랜드로 가격 페이지 만들어줘        # brands/acme.json 복사 → brief → system → ui → qa
-/design 독서 모임 앱 대시보드 UI 만들어줘          # 브랜드 없음 → brief(팔레트 결정) → system → ui → qa
+/design acme 브랜드로 가격 페이지 만들어줘        # brands/acme.json 복사 → brief → system → stitch(propose) → 승인 대기
+/design 독서 모임 앱 대시보드 UI 만들어줘          # 브랜드 없음 → brief(팔레트 결정) → system → stitch(propose) → 승인 대기
+/design audit 지금 설정 화면 UX 봐줘               # design-stitch audit 만 (읽기 전용)
+/design handoff                                    # 승인된 revision 의 handoff.md 만
+/design implement 승인된 시안대로 구현해줘          # check-stitch implement → ui → qa
 /design https://example.com 이거 똑같이 만들어줘   # tokens → recreate → qa
 /design ./ref/post.png 이 인스타 포스트 재현        # SNS Template: tokens → recreate → qa
 /design https://example.com 토큰만 뽑아줘          # Extraction: tokens 만

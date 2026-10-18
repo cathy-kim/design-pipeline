@@ -1,6 +1,6 @@
 ---
 name: design-ui
-description: 파이프라인 4단계 — 확정된 디자인 시스템(.design/system/)과 브리프(.design/brief.md)로 실제 UI 코드를 만든다. 모드 네 가지 component(React 컴포넌트) · page(화면/대시보드/폼, 기존 프로젝트 라우트 또는 단일 HTML) · landing-next(Next.js + Magic UI 랜딩) · artifact(React+shadcn 단일 HTML 번들), 그리고 기존 코드를 고치는 modify. 색·radius·타입은 system 토큰과 프리미티브만 쓰며 새 hex·임의 radius 를 만들지 않는다. system 이 없으면 생성하지 않고 design-system 으로 되돌린다. Use when - UI 만들어, 화면 구현, 컴포넌트 작성, 페이지 만들어, 랜딩페이지, 대시보드, React 컴포넌트, HTML/CSS, 아티팩트, 단일 HTML, 화면 수정, landing page, dashboard, component, artifact. NOT for - 요구사항 정리·화면 목록(design-brief), 디자인 시스템·토큰 코드 생성(design-system), 참조 URL/이미지 픽셀 재현(design-recreate), 이미지 에셋·카드뉴스·로고·인스타 카드(design-assets), 브라우저 QA·토큰 감사(design-qa)
+description: 파이프라인 4단계 — 확정된 디자인 시스템(.design/system/)과 브리프(.design/brief.md)로 실제 UI 코드를 만든다. 모드 네 가지 component(React 컴포넌트) · page(화면/대시보드/폼, 기존 프로젝트 라우트 또는 단일 HTML) · landing-next(Next.js + Magic UI 랜딩) · artifact(React+shadcn 단일 HTML 번들), 그리고 기존 코드를 고치는 modify. 색·radius·타입은 system 토큰과 프리미티브만 쓰며 새 hex·임의 radius 를 만들지 않는다. system 이 없으면 생성하지 않고 design-system 으로 되돌린다. 화면(page·landing-next·artifact·구조를 바꾸는 modify)은 design-stitch 에서 승인된 revision 의 handoff.md 와 사용자의 별도 구현 요청이 있어야 만든다. Use when - UI 만들어, 화면 구현, 컴포넌트 작성, 페이지 만들어, 랜딩페이지, 대시보드, React 컴포넌트, HTML/CSS, 아티팩트, 단일 HTML, 화면 수정, landing page, dashboard, component, artifact. NOT for - 화면 UI/UX 시안·리디자인·UX 감사(design-stitch), 요구사항 정리·화면 목록(design-brief), 디자인 시스템·토큰 코드 생성(design-system), 참조 URL/이미지 픽셀 재현(design-recreate), 이미지 에셋·카드뉴스·로고·인스타 카드(design-assets), 브라우저 QA·토큰 감사(design-qa)
 ---
 
 # design-ui — UI 생성 (4단계)
@@ -18,6 +18,7 @@ description: 파이프라인 4단계 — 확정된 디자인 시스템(.design/s
 | `.design/brand_config.json` | **필수** | 정본 토큰(roles·radius 스케일·motion·typography families). 스크립트가 shadcn 별칭을 여기서 해석 |
 | `.design/brief.md` | **필수** (modify 제외) | 목표 · 화면 목록(S1…, P0/P1/P2) · 상태(States) · 톤 · 콘텐츠 · 제약 |
 | 작업 프로젝트 | 선택 | `package.json` 이 있으면 그 프레임워크·경로 규칙을 따른다 |
+| `.design/stitch/handoff.md` + `session.json` | 화면 모드 **필수** | 승인된 Stitch revision 의 화면별 컴포넌트·상태·토큰·수용 기준과 이미지. 구조·레이아웃은 이것을 따른다 |
 | `mode=` 인자 | 선택 | 라우터가 `mode=<component\|page\|landing-next\|artifact\|modify>` 로 넘긴다. 없으면 Phase 1 표로 고른다 |
 
 ### Phase 0 게이트 (하드 룰)
@@ -34,6 +35,12 @@ test -f .design/brief.md && echo BRIEF_OK || echo BRIEF_MISSING
   다음: Skill(design-pipeline:design-system). brand_config.json 도 없으면 design-tokens(참조 있음) 또는 design-brief(참조 없음)부터.
   ```
 - `BRIEF_MISSING` (modify 가 아닐 때) → 같은 방식으로 멈추고 `design-brief` 로 되돌린다.
+- **Stitch 게이트** (page · landing-next · artifact, 그리고 화면 구조·IA·레이아웃을 바꾸는 modify):
+  ```bash
+  node "${CLAUDE_PLUGIN_ROOT}/skills/design-stitch/scripts/check-stitch.mjs" .design/stitch/session.json --gate implement
+  ```
+  exit 0 이 아니거나 사용자가 구현을 **따로** 요청하지 않았으면 코드를 쓰지 않고 `design-stitch` 로 되돌린다. 디자인 승인은 구현 지시가 아니다.
+  면제: `component` 모드, 문구·버그·토큰 값만 고치는 modify, 사용자가 "Stitch 없이" 를 명시한 경우(`stitch=off`, 보고에 기록).
 - **modify 예외**: 계약 §4 Modification 은 system 을 선택 입력으로 둔다. system 이 없으면 **대상 프로젝트에 이미 있는 토큰(tailwind config·CSS 변수)만** 쓴다. 그것도 없으면 새 값을 만들지 말고 design-system 을 먼저 돌리라고 보고한다.
 
 ## ③ 출력
@@ -74,6 +81,7 @@ test -f .design/brief.md && echo BRIEF_OK || echo BRIEF_MISSING
 
 ### Phase 3 — 계획 (From Scratch 흐름: 레이아웃 → 비주얼 → 피드백)
 
+0. Stitch 게이트를 통과했으면 `handoff.md` 의 화면 순서·상태·수용 기준이 brief 보다 우선한다. 승인 이미지(`.design/stitch/r<rev>/`)와 다른 구조를 새로 만들지 않는다.
 1. brief 의 **P0 화면부터**. 화면마다 목적 · 핵심 요소 · States(default/loading/empty/error) 를 확인.
 2. craft.md §1 대로 방향 네 줄(목적·톤·제약·차별점)을 정한다.
 3. 그리드 선택:

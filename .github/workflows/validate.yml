@@ -15,6 +15,8 @@ jobs:
           python -m json.tool .claude-plugin/marketplace.json >/dev/null
       - name: Structure, frontmatter, references
         run: bash scripts/validate.sh
+      - name: design-stitch static contract tests (no live Stitch)
+        run: node --test skills/design-stitch/scripts/test/contract.test.mjs
       - name: No secrets
         run: |
           ! grep -rnIE '(AIza[0-9A-Za-z_-]{30,}|sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{30,})' --exclude-dir=node_modules --exclude-dir=.git .

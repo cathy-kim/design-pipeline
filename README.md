@@ -1,6 +1,6 @@
 # design-pipeline
 
-**English summary.** `design-pipeline` is a Claude Code plugin that turns a design request into shipped UI through a fixed, file-based pipeline: **brand_config → design system → UI → assets → QA**. A router skill (`/design`) classifies the request (from scratch, inspired, recreation, modification, extraction, deconstruct/SNS, assets-only, design-system-only) and calls seven stage skills in order, checking a `.design/` handoff directory between stages. Brands are data, not code: add a brand by dropping one JSON file into `brands/`. UI code is only generated after the design system has been fixed in code, and `design-qa` mechanically enforces the workspace design rules (3 colors per screen, closed radius scale, no pill buttons / neon glow / glassmorphism / gradient borders).
+**English summary.** `design-pipeline` is a Claude Code plugin that turns a design request into shipped UI through a fixed, file-based pipeline: **brand_config → design system → UI → assets → QA**. A router skill (`/design`) classifies the request (from scratch, inspired, recreation, modification, extraction, deconstruct/SNS, assets-only, design-system-only) and calls eight stage skills in order, checking a `.design/` handoff directory between stages. Brands are data, not code: add a brand by dropping one JSON file into `brands/`. Screen UI/UX is designed in Google Stitch by `design-stitch` (audit · propose · refine · handoff) and becomes code only after an explicit, revision-bound approval plus a separate implementation request. UI code is only generated after the design system has been fixed in code, and `design-qa` mechanically enforces the workspace design rules (3 colors per screen, closed radius scale, no pill buttons / neon glow / glassmorphism / gradient borders).
 
 ---
 
@@ -23,7 +23,8 @@
 | 1 | `design-brief` | 요구사항 질문, 화면 목록, 브랜드 없을 때 팔레트·타이포 결정 | `brief.md` |
 | 2 | `design-tokens` | URL·이미지·브랜드 가이드에서 토큰 추출 | `brand_config.draft.json`, `tokens-report.md` |
 | 3 | `design-system` | 토큰을 코드로 변환, 컴포넌트 프리미티브, 가드 테스트 | `system/` |
-| 4 | `design-ui` | 화면·컴포넌트 코드 생성 (component · page · landing-next · artifact) | 프로젝트 코드 |
+| 3a | `design-stitch` | Stitch 로 화면 UI/UX 설계: audit(읽기 전용) · propose · refine · handoff, revision 승인 게이트 | `stitch/` |
+| 4 | `design-ui` | 승인된 handoff 를 화면·컴포넌트 코드로 생성 (component · page · landing-next · artifact) | 프로젝트 코드 |
 | 5 | `design-recreate` | 참조 재현, 레이어 분해, 자기 수정 루프 | 재현 코드, `recreate-report.md` |
 | 6 | `design-assets` | Gemini 이미지, 카드뉴스·광고·로고·모션 | `assets/` |
 | 7 | `design-qa` | 정적 토큰 감사, Playwright 검사, 픽셀 diff, 15항목 체크리스트 | `qa/report.md` |
@@ -55,6 +56,24 @@ gh auth status   # github.com 계정이 Logged in 으로 보여야 한다
 /design acme 브랜드로 가격 페이지 만들어줘
 /design 독서 모임 앱 대시보드 UI 만들어줘
 /design https://example.com 이거 똑같이 만들어줘
+```
+
+## Stitch MCP
+
+`design-stitch` 는 세션에 Stitch MCP 서버 `stitch`(도구 `mcp__stitch__*`)가 붙어 있다고 가정한다. 이 플러그인은 서버 등록·권한·훅을 바꾸지 않는다.
+
+| Claude 프로필 | user MCP 설정 파일 |
+|---|---|
+| default | `~/.claude.json` |
+| sub2 / sub3 | `~/.claude-accounts/profiles/<sub2\|sub3>/.claude.json` |
+
+라우팅되는 세션이 쓰는 프로필에 등록돼 있어야 한다. 세션 시작 뒤 등록한 서버는 그 세션에 안 보이므로 새 세션을 띄우거나, 같은 백엔드 CLI 릴레이(`stitch-mcp --list-tools`, `stitch-mcp --call <tool> --args '<json>'`)로 폴백한다. 릴레이 설치·자격은 그 릴레이 문서가 정본이다(비밀값은 리포에 두지 않는다).
+
+```
+/design audit 지금 설정 화면 UX 봐줘        # 읽기 전용
+/design 온보딩 화면 리디자인 시안            # propose → 승인 대기
+/design handoff                             # 승인 revision 의 handoff.md 만
+/design implement 승인된 시안대로 구현해줘   # check-stitch → design-ui → design-qa
 ```
 
 ## 브랜드 추가하기
@@ -99,6 +118,7 @@ export GEMINI_API_KEY=...   # 셸 프로필 또는 비밀 관리 도구에서 �
   brand_config.draft.json  # 2. 추출 결과. 확인 후 brand_config.json 으로 승격
   tokens-report.md         # 2. 추출 근거와 신뢰도
   system/                  # 3. tailwind.config · tokens.css · nativewind theme · primitives · guards
+  stitch/                  # 3a. session.json · ux-frame.md · r<rev>/*.png · report.md · handoff.md
   recreate-report.md       # 5. 섹션별 일치율, 남은 diff
   assets/                  # 6. 생성물 + manifest.json (프롬프트·모델·시드)
   qa/report.md             # 7. PASS/FAIL 항목표
@@ -122,7 +142,7 @@ bash scripts/validate.sh
 - SKILL.md 안의 `references/` · `scripts/` 상대경로와 `${CLAUDE_PLUGIN_ROOT}/...` 경로가 실제로 존재한다.
 - `brands/*.json` 이 유효한 JSON 이다.
 
-마지막 줄이 `validate: PASS` 여야 한다.
+마지막 줄이 `validate: PASS` 여야 한다. design-stitch 의 정적 계약 테스트는 `node --test skills/design-stitch/scripts/test/contract.test.mjs` 다(실제 Stitch 호출 없음).
 
 ## 디자인 규칙
 
