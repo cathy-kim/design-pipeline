@@ -1,6 +1,6 @@
 ---
 name: design
-description: UI/UX 디자인 파이프라인 라우터. 자연어 디자인 요청을 9개 유형(From Scratch 브랜드 유/무, Inspired, Recreation, Modification, Extraction, Deconstruct/SNS Template, Assets only, Design system only)으로 분류하고, design-brief · design-tokens · design-system · design-ui · design-recreate · design-assets · design-qa 를 정해진 순서로 호출하며, 단계 사이마다 `.design/` 핸드오프 산출물을 확인한다. 설계는 직접 하지 않는다. Use when - 디자인, 디자인 만들어줘, UI 만들어줘, 이거 똑같이, 스타일 참고해서, 디자인 수정, 토큰 추출, 이미지 분해, SNS 템플릿, 카드뉴스, 디자인 시스템, design, ui, ux, landing, dashboard, component, recreate, extract tokens. NOT for - 웹소설 설계(novel-design), 브랜드 아이덴티티 기획(brand-system)
+description: UI/UX 디자인 파이프라인 라우터. 자연어 디자인 요청을 10개 유형(From Scratch 브랜드 유/무, Inspired, Recreation, Modification, Extraction, Deconstruct/SNS Template, Mockup/Faux UI, Assets only, Design system only)으로 분류하고, design-brief · design-tokens · design-system · design-ui · design-recreate · design-assets · design-qa (목업은 외부 스킬 stageshow) 를 정해진 순서로 호출하며, 단계 사이마다 `.design/` 핸드오프 산출물을 확인한다. 설계는 직접 하지 않는다. Use when - 디자인, 디자인 만들어줘, UI 만들어줘, 이거 똑같이, 스타일 참고해서, 디자인 수정, 토큰 추출, 이미지 분해, SNS 템플릿, 카드뉴스, 디자인 시스템, 목업, mockup, 가짜 UI, 제품 데모 애니메이션, 기능 카드 일러스트, design, ui, ux, landing, dashboard, component, recreate, extract tokens. NOT for - 웹소설 설계(novel-design), 브랜드 아이덴티티 기획(brand-system)
 ---
 
 # design — 파이프라인 라우터
@@ -47,10 +47,11 @@ Deconstruct 판별: 이미지가 상세페이지·광고 배너처럼 배경 + �
 | **Modification** | 기존 코드 수정 | (system 있으면 읽기) → ui(수정 모드) → qa |
 | **Extraction** | "토큰 뽑아줘" | tokens 만 |
 | **Deconstruct / SNS Template** | 이미지 분해·재구성, SNS 포스트 재현 | tokens → recreate → (assets) → qa |
+| **Mockup / Faux UI** | 목업·제품 화면 일러스트·기능 카드/히어로 그림·커서 데모 애니메이션·벤토 그리드 | (tokens) → **stageshow**(외부 스킬) → qa(정적 감사 + stageshow 촬영 관문) |
 | **Assets only** | 카드뉴스·광고·로고·모션 | assets → qa(정적 감사만) |
 | **Design system only** | "디자인 시스템 만들어줘" | (tokens) → system → qa(가드 테스트) |
 
-괄호 단계는 조건부다. Inspired 의 (brief) 는 화면 목록이 요청에 없을 때, Deconstruct 의 (assets) 는 생성 이미지(아바타·배경·제품컷)가 필요할 때, Design system only 의 (tokens) 는 참조 URL/이미지/가이드가 있을 때 넣는다.
+괄호 단계는 조건부다. Inspired 의 (brief) 는 화면 목록이 요청에 없을 때, Deconstruct 의 (assets) 는 생성 이미지(아바타·배경·제품컷)가 필요할 때, Design system only 의 (tokens) 는 참조 URL/이미지/가이드가 있을 때 넣는다. Mockup 의 (tokens) 는 참조가 있거나 `brand_config.json` 이 없고 실제 제품 사이트가 있을 때 넣는다.
 
 ### 행별 호출 시퀀스
 
@@ -109,6 +110,17 @@ Skill(skill="design-pipeline:design-assets",   args="from=.design/recreate-repor
 Skill(skill="design-pipeline:design-qa",       args="target=<재현 결과> | diff-against=<ref.image>")
 ```
 
+**Mockup / Faux UI** — 외부 스킬 `stageshow` 에 위임한다(계약 §4). 실제 출시 화면 코드면 이 행이 아니라 From Scratch·Modification 이다.
+```bash
+test -s ~/.claude/skills/stageshow/SKILL.md || echo "STOPPED: stageshow 미설치 — npx skills add benjitaylor/skills --skill stageshow"
+```
+```
+Skill(skill="design-pipeline:design-tokens", args="source=<ref.url|ref.image|제품 사이트>")   # 조건부(③ 괄호 단계)
+Skill(skill="stageshow", args="<요청> | brand_config=.design/brand_config.json(있으면) | out=.design/mockup/")
+Skill(skill="design-pipeline:design-qa",     args="target=.design/mockup | static-only")
+```
+stageshow 는 `brand_config` 게이트를 거치지 않는다 — 토큰이 없으면 stageshow 의 기본 look(stageshow 스킬의 looks 참조 문서)을 쓴다. stageshow 자체 관문(stageshow 의 `film.mjs ... --gate` 가 `rehearsal passed`)과 `REHEARSAL.md` 가 그 단계의 완료 증거다.
+
 **Assets only**
 ```
 Skill(skill="design-pipeline:design-assets", args="kind=<cardnews|ad|logo|motion|detail-page> | <문구/내용>")
@@ -140,6 +152,7 @@ system · ui · recreate(시스템 사용 시) · assets 를 부르기 전에 `.
 | design-system | `brand_config.json`, `system/` 아래 파일 1개 이상 |
 | design-ui | 단계가 보고한 화면/컴포넌트 파일 경로 전부 |
 | design-recreate | `recreate-report.md` |
+| stageshow (Mockup) | `.design/mockup/` 아래 컴포넌트 1개 이상 + `REHEARSAL.md` + 촬영 스틸(PNG) 1개 이상 |
 | design-assets | `.design/assets` 디렉터리 안의 `manifest.json` 과 생성물 1개 이상 |
 | design-qa | `qa/report.md` |
 
@@ -166,7 +179,7 @@ next: <같은 단계 재호출에 필요한 입력 또는 원인>
 | 흔한 모호함 | 선택지(→ 결정표 행) |
 |---|---|
 | 참조 이미지/URL만 있고 의도 불명 | 똑같이 재현(Recreation) · 스타일만 참고해 새로(Inspired) · 분해 후 재구성(Deconstruct) · 토큰만 추출(Extraction) |
-| "디자인 해줘" + 텍스트만 | 화면/페이지 만들기(From Scratch) · 디자인 시스템만(Design system only) · 카드뉴스/광고 이미지(Assets only) |
+| "디자인 해줘" + 텍스트만 | 화면/페이지 만들기(From Scratch) · 목업·제품 데모 그림(Mockup) · 디자인 시스템만(Design system only) · 카드뉴스/광고 이미지(Assets only) |
 | 기존 코드 + 참조 이미지 | 참조대로 기존 코드 수정(Modification) · 참조를 새로 재현(Recreation) |
 | 브랜드 미상 | `brands/` 의 id 목록(최대 3개) · 브랜드 없이 새로 결정 |
 
@@ -185,5 +198,6 @@ next: <같은 단계 재호출에 필요한 입력 또는 원인>
 /design https://example.com 이거 똑같이 만들어줘   # tokens → recreate → qa
 /design ./ref/post.png 이 인스타 포스트 재현        # SNS Template: tokens → recreate → qa
 /design https://example.com 토큰만 뽑아줘          # Extraction: tokens 만
+/design 대시보드 목업 히어로 그림 + 커서 데모         # Mockup: (tokens) → stageshow → qa(정적 감사)
 /design acme 로 카드뉴스 5장                       # Assets only: assets → qa(정적 감사)
 ```

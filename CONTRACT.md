@@ -1,6 +1,7 @@
 # design-pipeline — 단계 계약 (CONTRACT)
 
 > 이 문서가 정본이다. 각 스킬 SKILL.md 는 이 계약을 어기지 않는다. 어긋나면 이 문서가 이긴다.
+> Version 0.1.2 · 2026-11-04 (§4 Mockup / Faux UI 행 — 외부 스킬 stageshow 위임)
 > Version 0.1.1 · 2026-10-07 (§3 중간 경로·§3-1 공용 CLI·§5 확장 키·radius 규칙 확정)
 
 ## 1. 원칙
@@ -84,8 +85,11 @@ stdout 한 줄 JSON: {"pass": bool, "pixelScore": 0-100, "mismatchedPixels": int
 | **Modification** | 기존 코드 수정 | (system 있으면 읽기) → ui(수정 모드) → qa |
 | **Extraction** | "토큰 뽑아줘" | tokens 만 |
 | **Deconstruct / SNS Template** | 이미지 분해·재구성, SNS 포스트 재현 | tokens → recreate → (assets) → qa |
+| **Mockup / Faux UI** | 목업·제품 화면 일러스트·기능 카드/히어로 그림·커서 데모 애니메이션·벤토 그리드 | (tokens) → **stageshow**(외부 스킬) → qa(정적 감사 + stageshow 촬영 관문) |
 | **Assets only** | 카드뉴스·광고·로고·모션 | assets → qa(정적 감사만) |
 | **Design system only** | "디자인 시스템 만들어줘" | (tokens) → system → qa(가드 테스트) |
+
+**Mockup / Faux UI** 는 이 플러그인의 단계가 아니라 사용자 전역 스킬 `stageshow`(`~/.claude/skills/stageshow`, 출처 github.com/benjitaylor/skills)에 위임한다. stageshow 는 실제 제품처럼 보이는 가짜 UI(정지 이미지·커서 데모)를 React 로 만들고 `scripts/film.mjs --gate` 로 스스로 촬영·검증한다. 실제로 출시할 화면 코드는 이 행이 아니라 From Scratch·Modification(design-ui) 이다. 괄호 (tokens) 는 참조 URL/이미지가 있을 때, 또는 작업 프로젝트에 `brand_config.json` 이 없을 때 실제 제품 사이트에서 토큰을 뽑기 위해 넣는다. 카드뉴스·광고 이미지처럼 UI 화면이 아닌 그림은 Assets only 다. `stageshow` 가 설치돼 있지 않으면 라우터는 멈추고 설치 명령(`npx skills add benjitaylor/skills --skill stageshow`)을 알린다.
 
 라우터는 **설계를 직접 하지 않는다.** 분류하고, 각 단계를 `Skill` 로 호출하고, 단계 사이에 `.design/` 산출물이 생겼는지 확인한다. `brand_config.json` 이 없는데 3단계 이후로 가야 하면 2단계나 1단계로 되돌린다.
 
